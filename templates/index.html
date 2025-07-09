@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aprendizaje de SQL</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #c62828;
+        }
+        .success {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .results {
+            margin-top: 30px;
+        }
+        .query-display {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+        .query-display code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+            color: #333;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-style: italic;
+        }
+        .tips {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        .tips h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .tips ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .tips li {
+            margin: 5px 0;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎓 Aprendizaje de SQL</h1>
+        
+        <div class="tips">
+            <h3>💡 Consejos para empezar:</h3>
+            <ul>
+                <li>Puedes usar <code>SELECT * FROM longlist LIMIT 10</code> para ver algunos datos</li>
+                <li>Intenta <code>SELECT author, title FROM longlist WHERE author LIKE '%García%'</code></li>
+                <li>Experimenta con <code>COUNT(*)</code>, <code>GROUP BY</code>, y <code>ORDER BY</code></li>
+                <li>Para modificar datos: <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></li>
+                <li>Para crear tablas: <code>CREATE TABLE</code>, <code>ALTER TABLE</code>, <code>DROP TABLE</code></li>
+                <li>La tabla se llama <code>longlist</code> y contiene columnas como <code>author</code> y <code>title</code></li>
+            </ul>
+        </div>
+
+        <form method="post">
+            <div class="form-group">
+                <label for="sql_query">Escribe tu consulta SQL:</label>
+                <textarea name="sql_query" id="sql_query" placeholder="Ejemplo: SELECT * FROM longlist LIMIT 5;" required>{{ query or '' }}</textarea>
+            </div>
+            <button type="submit" class="button">🚀 Ejecutar Consulta</button>
+        </form>
+
+        {% if error %}
+            <div class="error">
+                <strong>❌ Error en la consulta:</strong><br>
+                {{ error }}
+            </div>
+        {% endif %}
+
+        {% if query and not error %}
+            <div class="results">
+                <div class="success">
+                    <strong>✅ Consulta ejecutada correctamente</strong>
+                </div>
+                
+                <div class="query-display">
+                    <strong>Consulta ejecutada:</strong><br>
+                    <code>{{ query }}</code>
+                </div>
+
+                {% if results %}
+                    <h3>📊 Resultados ({{ results|length }} filas):</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                {% for column in columns %}
+                                    <th>{{ column }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in results %}
+                                <tr>
+                                    {% for column in columns %}
+                                        <td>{{ row[column] or '' }}</td>
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <div class="no-results">
+                        📝 La consulta se ejecutó correctamente pero no devolvió resultados.
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
